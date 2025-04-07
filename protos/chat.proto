@@ -3,52 +3,31 @@ syntax = "proto3";
 package chat;
 
 service chatBot {
-    rpc engage(EngageRequest) returns (EngageResponse); //engaging with chatbox
-    rpc faq(FAQRequest) returns (FAQResponse) //engaging with FAQ options;
-    rpc chat(ChatRequest) returns (ChatResponse); //connecting with staff member
-    rpc message(stream ChatMessage) returns (stream MessageResponse); //messaging staff member
+    rpc chatService(stream UserMessage) returns(stream StaffMessage); //bidirectional streaming between user and staff
+    rpc getTickets(TicketRequest) returns(TicketList) //allows staff to request a list of open tickets for the user
 }
 
-message EngageRequest {
-    string cust_id = 1;
-}
-
-message EngageResponse {
-    string welcome_msg = 1;
-    uint32 faq_option_1 = 2;
-    uint32 faq_option_2 = 3;
-}
-
-message FAQRequest {
-    uint32 cust_selection = 1;
-}
-
-message FAQResponse {
-    string selection_response = 1;
-    uint32 faq_option_1;
-    uint32 faq_option_2;
-}
-
-message ChatRequest {
-    string cust_id = 1;
+//user sending message
+message UserMessage {
+    string cust_id = 1; 
     string message = 2;
     string message_time = 3;
 }
 
-message ChatResponse {
+//staff sending message
+message StaffMessage {
     bool success = 1;
     string staff_id = 2;
     string message_id = 3;
+    string message_time = 4;
 }
 
-stream ChatMessage {
+//staff requesting ticket list
+message TicketRequest {
     string cust_id = 1;
-    string message = 2;
-    string message_time =3;
 }
 
-stream MessageResponse {
-    string staff_id = 1;
-    string message = 2;
-    string message_time = 3;
+//returning ticket list
+message TicketList {
+    stream tickets = 1;
 }

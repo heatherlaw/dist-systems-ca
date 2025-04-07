@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package ticket;
+
+service genTicket {
+    rpc ticket(ticketRequest) returns(ticketResponse);
+}
+
+message ticketRequest {
+    string cust_id = 1;
+    string staff_id = 2;
+    string order_id = 3;
+    string ticket_date = 4;
+}
+
+message ticketResponse {
+    string ticket_id = 1;
+}

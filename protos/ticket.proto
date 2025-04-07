@@ -7,6 +7,7 @@ service SupportTicket {
     rpc UpdateTicket(UpdateRequest) returns(UpdateResponse); //updates ticket
     rpc DeleteTicket(DeleteRequest) returns(DeleteResponse); //deletes ticket
     rpc TrackTicket(TrackRequest) returns(stream TrackResponse); //returns up to date ticket information
+    rpc GetTickets(TicketRequest) returns(TicketList) //allows staff to request a list of open tickets for the user
 }
 
 //sends information to create new ticket
@@ -52,4 +53,14 @@ message TrackTicket {
 //returns information for tracked ticket as it is updated 
 message TrackResponse {
     string tracker_update = 1; 
+}
+
+//staff requesting ticket list
+message TicketRequest {
+    string cust_id = 1; 
+}
+
+//returning ticket list
+message TicketList {
+    stream tickets = 1; //list of all tickets connected to this customer
 }

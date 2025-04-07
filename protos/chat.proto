@@ -4,7 +4,6 @@ package chat;
 
 service ChatBot {
     rpc chatService(stream UserMessage) returns(stream StaffMessage); //bidirectional streaming between user and staff
-    rpc getTickets(TicketRequest) returns(TicketList) //allows staff to request a list of open tickets for the user
 }
 
 //user sending message

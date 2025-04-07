@@ -3,11 +3,11 @@ syntax = "proto3";
 package ticket;
 
 service SupportTicket {
-    rpc CreateTicket(CreateRequest) returns(CreateResponse); //create ticket
-    rpc UpdateTicket(UpdateRequest) returns(UpdateResponse); //updates ticket
-    rpc DeleteTicket(DeleteRequest) returns(DeleteResponse); //deletes ticket
-    rpc TrackTicket(TrackRequest) returns(stream TrackResponse); //returns up to date ticket information
-    rpc GetTickets(TicketRequest) returns(TicketList) //allows staff to request a list of open tickets for the user
+    rpc CreateTicket(CreateRequest) returns(CreateResponse); //create ticket - unary RPC
+    rpc UpdateTicket(UpdateRequest) returns(UpdateResponse); //updates ticket - unary RPC
+    rpc DeleteTicket(DeleteRequest) returns(DeleteResponse); //deletes ticket - unary RPC
+    rpc TrackTicket(TrackRequest) returns(stream TrackResponse); //returns up to date ticket information - server streaming RCP
+    rpc GetTickets(TicketRequest) returns(stream TicketList) //allows staff to request a list of open tickets for the user - server streaming RCP
 }
 
 //sends information to create new ticket

@@ -3,7 +3,7 @@ syntax = "proto3";
 package chat;
 
 service ChatBot {
-    rpc chatService(stream UserMessage) returns(stream StaffMessage); //bidirectional streaming between user and staff
+    rpc chatService(stream UserMessage) returns(stream StaffMessage); //messages between user and staff - bidirectional streaming RPC
 }
 
 //user sending message

@@ -3,7 +3,7 @@ syntax = "proto3";
 package feedback;
 
 service FeedbackCollection {
-    rpc SubmitFeedback(stream UserFeedback) returns (FeedbackSummary); //allows user to submit feedback
+    rpc SubmitFeedback(stream UserFeedback) returns (FeedbackSummary); //allows user to submit feedback - client streaming RCP
 }
 
 message UserFeedback {

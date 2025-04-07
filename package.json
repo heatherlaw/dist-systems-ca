@@ -1,0 +1,24 @@
+{
+  "name": "dist-systems-ca",
+  "version": "1.0.0",
+  "description": "CA Project for Distributed Systems class",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heatherlaw/dist-systems-ca.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/heatherlaw/dist-systems-ca/issues"
+  },
+  "homepage": "https://github.com/heatherlaw/dist-systems-ca#readme",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.13.2",
+    "@grpc/proto-loader": "^0.7.13"
+  }
+}

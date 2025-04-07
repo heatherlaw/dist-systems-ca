@@ -20,13 +20,3 @@ message StaffMessage {
     string message = 3; //text of message
     string message_time = 4;
 }
-
-//staff requesting ticket list
-message TicketRequest {
-    string cust_id = 1; 
-}
-
-//returning ticket list
-message TicketList {
-    stream tickets = 1; //list of all tickets connected to this customer
-}

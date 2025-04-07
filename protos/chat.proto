@@ -2,32 +2,32 @@ syntax = "proto3";
 
 package chat;
 
-service chatBot {
+service ChatBot {
     rpc chatService(stream UserMessage) returns(stream StaffMessage); //bidirectional streaming between user and staff
     rpc getTickets(TicketRequest) returns(TicketList) //allows staff to request a list of open tickets for the user
 }
 
 //user sending message
 message UserMessage {
-    string cust_id = 1; 
-    string message = 2;
+    string cust_id = 1; //unique ID number for customer
+    string message = 2; //text of message
     string message_time = 3;
 }
 
 //staff sending message
 message StaffMessage {
-    bool success = 1;
-    string staff_id = 2;
-    string message_id = 3;
+    bool success = 1; //confirms for the user that their message was received by a staff member
+    string staff_id = 2; //unique ID number for staff member handling messages
+    string message = 3; //text of message
     string message_time = 4;
 }
 
 //staff requesting ticket list
 message TicketRequest {
-    string cust_id = 1;
+    string cust_id = 1; 
 }
 
 //returning ticket list
 message TicketList {
-    stream tickets = 1;
+    stream tickets = 1; //list of all tickets connected to this customer
 }

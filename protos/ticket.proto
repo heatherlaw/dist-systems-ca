@@ -2,17 +2,54 @@ syntax = "proto3";
 
 package ticket;
 
-service genTicket {
-    rpc ticket(ticketRequest) returns(ticketResponse);
+service SupportTicket {
+    rpc CreateTicket(CreateRequest) returns(CreateResponse); //create ticket
+    rpc UpdateTicket(UpdateRequest) returns(UpdateResponse); //updates ticket
+    rpc DeleteTicket(DeleteRequest) returns(DeleteResponse); //deletes ticket
+    rpc TrackTicket(TrackRequest) returns(stream TrackResponse); //returns up to date ticket information
 }
 
-message ticketRequest {
-    string cust_id = 1;
+//sends information to create new ticket
+message CreateRequest {
+    string cust_id = 1; //unique ID for customer
+    string staff_id = 2; //unique ID for staff
+    string ticket_date = 3; //date of ticket creation
+}
+
+//confirms ticket creation and returns generated unique ticket ID number
+message CreateResponse {
+    string ticket_id = 1; //unique ticket ID created and returned
+}
+
+//sends updated information to ticket
+message UpdateRequest {
+    string ticket_id = 1; 
+    string ticket_update = 2; //string updates to be added to ticket
+}
+
+//confirms ticket update
+message UpdateResponse {
+    string update_confirmation = 1; //confirmation that ticket was updated
+}
+
+//request to delete ticket
+message DeleteTicket {
+    string ticket_id = 1; 
+    string staff_id = 2; //staff ID required for accountability
+}
+
+//confirms ticket deletion
+message DeleteResponse {
+    string delete_confirmation = 1; //confirmation of the ticket deletion
+}
+
+//request for employee to track ticket
+message TrackTicket {
+    string ticket_id = 1; 
     string staff_id = 2;
-    string order_id = 3;
-    string ticket_date = 4;
 }
 
-message ticketResponse {
-    string ticket_id = 1;
+//returns information for tracked ticket as it is updated 
+message TrackResponse {
+    string tracker_update = 1; 
 }

@@ -15,7 +15,6 @@ message UserMessage {
 
 //staff sending message
 message StaffMessage {
-    bool success = 1; //confirms for the user that their message was received by a staff member
     string staff_id = 2; //unique ID number for staff member handling messages
     string message = 3; //text of message
     string message_time = 4;

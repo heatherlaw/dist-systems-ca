@@ -11,6 +11,7 @@ message UserMessage {
     string cust_id = 1; //unique ID number for customer
     string message = 2; //text of message
     string message_time = 3;
+    string name = 4;
 }
 
 //staff sending message
@@ -18,4 +19,5 @@ message StaffMessage {
     string staff_id = 2; //unique ID number for staff member handling messages
     string message = 3; //text of message
     string message_time = 4;
+    string name = 5;
 }

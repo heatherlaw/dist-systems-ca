@@ -16,61 +16,16 @@ const feedbackPackage = grpc.loadPackageDefinition(feedbackProto).FeedbackCollec
 const ticketPackage = grpc.loadPackageDefinition(ticketProto).SupportTicket;
 
 //creating chat client
-const chatClient = new chatPackage('localhost:3000', grpc.credentials.createInsecure());
+const chatClient = new chatPackage.ChatBot('localhost:3000', grpc.credentials.createInsecure());
 
 //creating feedback client
-const feedbackClient = new feedbackPackage('localhost:3000', grpc.credentials.createInsecure());
+const feedbackClient = new feedbackPackage.FeedbackCollection('localhost:3000', grpc.credentials.createInsecure());
 
 //creating ticket client
-const ticketClient = new ticketPackage('localhost:3000', grpc.credentials.createInsecure());
-
-//Function to call the chat service - Bidirectional Streaming
-const chatStream = () => {
-    const call = chatClient.ChatStream();
-
-    call.on('data', (staff_message) => {
-            console.log('Support Team Response: ', staff_message);
-    });
-
-    call.on('end', () => {
-        console.log('Chat ended');
-    });
-
-    //handling errors
-    call.on('error', (e) => {
-        console.error('Error:', e.message);
-    });
-};
-
-//start chat
-chatStream ();
-
-
-
-
-
-//getting the user's name
-const name = readlineSync.question("What is your name?");
+const ticketClient = new ticketPackage.SupportTicket('localhost:3000', grpc.credentials.createInsecure());
 
 //each customer would have a unique customer ID number, ideally, but hardcoding to ensure everything works properly
 const cust_id = '20013000950104';
-
-//starting the chat
-const call = client.chatService();
-
-//staff messages
-call.on('data', (message) => {
-    console.log(`${message.name}: [Staff ${message.staff_id}]: ${message.message} (${message.message_time})`);
-});
-
-call.on('end', () => {
-    console.log('Chat ended by server.');
-});
-
-//handling errors
-call.on('error', (e) => {
-    console.error('Error:', e.message);
-});
 
 //user messages
 const rl = readline.createInterface({
@@ -78,15 +33,44 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-rl.on('line', (input) => {
-    //getting message date variable
-    const now = new Date().toISOString();
+//Function to call the chat service - Bidirectional Streaming
+const startChat = () => {
+    const call = chatClient.ChatService();
 
-    const userMessage = {
+    //listening for staff messages from the server
+    call.on('data', (message) => {
+        console.log(`\n[Staff ${message.staff}] (${message.message_time}): ${message.staff_message}`);
+    });
+
+    call.on('end', () => {
+        console.log('\n[Chat ended by support team]');
+        process.exit(0);
+    });
+
+    //handling errors
+    call.on('error', (e) => {
+        console.error('Stream Error:', e.message);
+    });
+
+    call.write({user: '${user}', message: 'user_message'});
+    call.write({user: '${staff}', message: '${staff_message}'});
+    call.end();
+};
+
+// Prompt for user's name
+rl.question("Enter your name: ", (user) => {
+    console.log("Chat started - please type your message and press enter");
+
+    rl.on('line', (input) => {
+      const message = {
         cust_id: cust_id,
-        name: name,
-        message: input,
-        message_time: now,
-    };
-    call.write(userMessage);
+        user_message: input,
+        message_time: new Date().toISOString(),
+        user: user
+      };
+      call.write(message);
+    });
 });
+
+//start chat
+chatStream ();

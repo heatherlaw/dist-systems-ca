@@ -64,7 +64,7 @@
           <div id="chatFunction" style="display: none">
             <textarea id="chatBox" placeholder="Chat messages will appear here..." style="width: 80%; height: 150px; margin-top: 10px; margin-bottom: 10px;"></textarea><br>
             <input type="text" id="user" placeholder="Enter your name">
-            <input type="text" id="message" placeholder="Enter your message">
+            <input type="text" id="user_message" placeholder="Enter your message">
             <button onclick="sendMessage()">Send Message</button>
             <button onclick="endChat()">End Chat</button>
           </div>
@@ -72,7 +72,6 @@
           <!--Feedback form-->
           <div id="feedbackForm" style="display: none">
             <textarea id="feedbackBox" placeholder="Your feedback helps us improve! Please enter any comments here..." style="width: 80%; height: 150px; margin-top: 10px; margin-bottom: 10px;"></textarea><br>
-            <input type="text" id="user" placeholder="Enter your name">
             <input type="text" id="rating" placeholder="Rate us from 1-5">
             <input type="text" id="feedback" placeholder="Enter your comments">
             <button onclick="sendFeedback()">Send Feedback</button>
@@ -95,25 +94,54 @@
 
     <script>
       const chatServiceUrl = 'http://localhost:3000';
+      let ws;
+      let user;
+
+      //function to start the chatbox 
+      function startChat(){
+        user=document.getElementById('user').value || 'Guest';
+        document.getElementById("chatFunction").style.display = "block";
+        document.getElementById("chatButton").style.display = "none";
+
+        ws = new WebSocket('ws://localhost:8081');
+
+        ws.onmessage = function (event) {
+          const data = JSON.parse(event.data);
+          const chatBox = document.getElementById('chatBox');
+
+          if(data.type === 'staff') {
+            chatBox.value += '\n${data.from} (Staff): ${data.message}';
+          }
+          else if (data.type === 'system') {
+            chatBox.value += '\n[System]: ${data.message}';
+          }
+          else if (data.type === 'error') {
+            chatBox.value += '\n[Error]: ${data.message}';
+          }
+        };
+
+        ws.onclose = function () {
+          document.getElementById('chatBox').value += '\n[Chat closed]';
+        };
+      }
 
       // Function to send message in chat
       function sendMessage() {
-          const user = document.getElementById('user').value;
-          const message = document.getElementById('message').value;
-          document.getElementById('chatBox').value += `\n${user}: ${message}`;
+        const user = document.getElementById('user').value;
+        const message = document.getElementById('user_message').value;
+        
+        if (ws && message.trim() !== '') {
+          ws.send(JSON.stringify({user: user, message: message}));
+          document.getElementById('chatBox').value += '\n${user}: ${message}';
+          document.getElementById('user_message').value = '';
+        }
       }
       
       //feedback form function
       function sendFeedback() {
-          const user = document.getElementById('user').value;
           const feedback = document.getElementById('feedback').value;
+          const user = document.getElementById('user').value;
           document.getElementById('feedbackBox').value += `\n${user}: ${feedback}`;
-      }
-
-      //function to introduce chatbox
-      function startChat(){
-        document.getElementById("chatFunction").style.display = "block";
-        document.getElementById("chatButton").style.display = "none";
       }
 
       //function to end the chat

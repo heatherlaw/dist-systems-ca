@@ -16,8 +16,8 @@ message UserMessage {
 
 //staff sending message
 message StaffMessage {
-    string staff_id = 2; //unique ID number for staff member handling messages
-    string staff_message = 3; //text of message
-    string message_time = 4;
-    string staff = 5; //staff member's name
+    string staff_id = 1; //unique ID number for staff member handling messages
+    string staff_message = 2; //text of message
+    string message_time = 3;
+    string staff = 4; //staff member's name
 }

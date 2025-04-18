@@ -10,6 +10,8 @@ Date: April 2025
 Repository Contents: 
 - Node modules
 - Proto files
-- Client.js 
-- Server.js
+- Client folder - contains client app
+- Server folder - contains server app
+- Public folder - contains GUI files
 - Package.json
+- server.js - Express server

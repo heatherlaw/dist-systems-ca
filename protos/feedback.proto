@@ -9,11 +9,9 @@ service FeedbackCollection {
 message UserFeedback {
     string ticket_id = 1; //unique ID for ticket that customer is rating
     string feedback_text = 2; //the written feedback from the customer
-    int32 rating = 3; //rating from 1-5, which is used to generate average rating
+    int32 rating = 3; //rating from 1-5
 }
 
 message FeedbackSummary {
-    int32 total_feedback_count = 1; //number of feedback responses collected - used to calculate average rating
-    float average_rating = 2; //average rating based on feedback count and rating ints
-    string message = 3; //confirmation message returned to user
+    string message = 1; //confirmation message returned to user
 }

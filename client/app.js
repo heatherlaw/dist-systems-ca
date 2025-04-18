@@ -11,18 +11,18 @@ const feedbackProto = protoLoader.loadSync(path.join(__dirname, '../protos/feedb
 const ticketProto = protoLoader.loadSync(path.join(__dirname, '../protos/ticket.proto'));
 
 //gRPC package definitions
-const chatPackage = grpc.loadPackageDefinition(chatProto).ChatBot;
+const chatPackage = grpc.loadPackageDefinition(chatProto).chat;
 const feedbackPackage = grpc.loadPackageDefinition(feedbackProto).FeedbackCollection;
 const ticketPackage = grpc.loadPackageDefinition(ticketProto).SupportTicket;
 
 //creating chat client
-const chatClient = new chatPackage.ChatBot('localhost:3000', grpc.credentials.createInsecure());
+const chatClient = new chatPackage.ChatBot('localhost:3001', grpc.credentials.createInsecure());
 
 //creating feedback client
-const feedbackClient = new feedbackPackage.FeedbackCollection('localhost:3000', grpc.credentials.createInsecure());
+const feedbackClient = new feedbackPackage.FeedbackCollection('localhost:3001', grpc.credentials.createInsecure());
 
 //creating ticket client
-const ticketClient = new ticketPackage.SupportTicket('localhost:3000', grpc.credentials.createInsecure());
+const ticketClient = new ticketPackage.SupportTicket('localhost:3001', grpc.credentials.createInsecure());
 
 //each customer would have a unique customer ID number, ideally, but hardcoding to ensure everything works properly
 const cust_id = '20013000950104';
@@ -33,9 +33,14 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
+// Prompt for user's name
+rl.question("Enter your name: ", (user) => {
+    startChat(user);
+});
+
 //Function to call the chat service - Bidirectional Streaming
-const startChat = () => {
-    const call = chatClient.ChatService();
+const startChat = (user) => {
+    const call = chatClient.chatService();
 
     //listening for staff messages from the server
     call.on('data', (message) => {
@@ -43,7 +48,7 @@ const startChat = () => {
     });
 
     call.on('end', () => {
-        console.log('\n[Chat ended by support team]');
+        console.log(`\n[Chat ended by support team]`);
         process.exit(0);
     });
 
@@ -52,25 +57,19 @@ const startChat = () => {
         console.error('Stream Error:', e.message);
     });
 
-    call.write({user: '${user}', message: 'user_message'});
-    call.write({user: '${staff}', message: '${staff_message}'});
-    call.end();
-};
-
-// Prompt for user's name
-rl.question("Enter your name: ", (user) => {
     console.log("Chat started - please type your message and press enter");
 
-    rl.on('line', (input) => {
-      const message = {
-        cust_id: cust_id,
-        user_message: input,
-        message_time: new Date().toISOString(),
-        user: user
-      };
-      call.write(message);
-    });
-});
+    const cust_id='20013000950104';
+    const staff_id='050194';
 
-//start chat
-chatStream ();
+    rl.on('line', (input) => {
+        const message = {
+            staff_id: staff_id,
+            user_message: input,
+            message_time: new Date().toISOString(),
+            user: user
+        };
+        call.write(message);
+    });
+};
+

@@ -9,12 +9,12 @@ const chatProto = protoLoader.loadSync(path.join(__dirname, '../protos/chat.prot
 const chatPackage = grpc.loadPackageDefinition(chatProto).chat;
 
 // Create gRPC client
-const chatClient = new chatPackage.ChatBot('localhost:3000', grpc.credentials.createInsecure());
+const chatClient = new chatPackage.ChatBot('localhost:3001', grpc.credentials.createInsecure());
 
 // Create WebSocket server
 const socket = new WebSocket.Server({port: 8081});
 
-console.log('WebSocket server running on ws://localhost:8081');
+console.log(`WebSocket server running on ws://localhost:8081`);
 
 socket.on('connection', (ws) => {
     console.log('Client connected through WebSocket');
@@ -24,11 +24,12 @@ socket.on('connection', (ws) => {
 
     //receiving messages from staff
     call.on('data', (staffMsg) => {
+        console.log('Received staff message:', staffMsg);
         ws.send(JSON.stringify({
             type: 'staff', 
-            from: staffMsg.staff,
-            message: staffMsg.staff_nessage,
-            time: staffMsg.message_time
+            from: staffMsg.staff || 'Unknown',
+            message: staffMsg.staff_message || 'No message',
+            time: staffMsg.message_time || new Date().toISOString()
         }));
     });
 
@@ -43,14 +44,16 @@ socket.on('connection', (ws) => {
     });
 
     //receiving messages to forward to gRPC
-    ws.on('message', (data) => {
+    ws.on('message', (message) => {
         try {
-            const {user, message} = JSON.parse(data);
+            const messageStr = message.toString();
+            console.log('Received message from client:', message);
+            const { user, message: userMessage } = JSON.parse(messageStr);
             const now = new Date().toISOString();
-
-            call.write ({
-                cust_id: '20013000950104', //as explained earlier, customer ID is hardcoded
-                user_message: message,
+    
+            call.write({
+                cust_id: '20013000950104', // as explained earlier, customer ID is hardcoded
+                user_message: userMessage,
                 message_time: now,
                 user: user
             });

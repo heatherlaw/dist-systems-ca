@@ -5,21 +5,49 @@ const protoLoader = require('@grpc/proto-loader');
 const path = require('path');
 var axios = require('axios');
 
-//loading chat proto definition
-const packageDefinition = protoLoader.loadSync(
-    'C:/Users/heath/dist-systems-ca/protos/chat.proto', 
-    {
-        keepCase: true,
-        longs: String,
-        enums: String,
-        defaults: true,
-        oneofs: true,
+//loading proto files
+const chatProto = protoLoader.loadSync(path.join(__dirname, '../protos/chat.proto'));
+const feedbackProto = protoLoader.loadSync(path.join(__dirname, '../protos/feedback.proto'));
+const ticketProto = protoLoader.loadSync(path.join(__dirname, '../protos/ticket.proto'));
+
+//gRPC package definitions
+const chatPackage = grpc.loadPackageDefinition(chatProto).ChatBot;
+const feedbackPackage = grpc.loadPackageDefinition(feedbackProto).FeedbackCollection;
+const ticketPackage = grpc.loadPackageDefinition(ticketProto).SupportTicket;
+
+//creating chat client
+const chatClient = new chatPackage('localhost:3000', grpc.credentials.createInsecure());
+
+//creating feedback client
+const feedbackClient = new feedbackPackage('localhost:3000', grpc.credentials.createInsecure());
+
+//creating ticket client
+const ticketClient = new ticketPackage('localhost:3000', grpc.credentials.createInsecure());
+
+//Function to call the chat service - Bidirectional Streaming
+const chatStream = () => {
+    const call = chatClient.ChatStream();
+
+    call.on('data', (staff_message) => {
+            console.log('Support Team Response: ', staff_message);
     });
 
-const chatProto = grpc.loadPackageDefinition(packageDefinition).chat;
+    call.on('end', () => {
+        console.log('Chat ended');
+    });
 
-//gRPC client
-const client = new chatProto.ChatBot('localhost:3000', grpc.credentials.createInsecure());
+    //handling errors
+    call.on('error', (e) => {
+        console.error('Error:', e.message);
+    });
+};
+
+//start chat
+chatStream ();
+
+
+
+
 
 //getting the user's name
 const name = readlineSync.question("What is your name?");

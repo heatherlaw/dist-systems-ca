@@ -4,7 +4,8 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
+var readlineSync = require('readline-sync');
+const readline = require("readline");
 var indexRouter = require('./routes/index');
 
 var app = express();
@@ -41,7 +42,6 @@ app.use(function(err, req, res, next) {
 //gRPC
 const grpc = require('@grpc/grpc-js')
 const protoLoader = require('@grpc/proto-loader');
-const path = require('path');
 
 //loading proto file
 const packageDefinition = protoLoader.loadSync(
@@ -95,7 +95,7 @@ function main() {
         console.log(`gRPC server running on port ${port}`);
 
         //readline for staff input
-        const rl = Readline.createInterface({
+        const rl = readline.createInterface({
             input: process.stdin,
             output: process.stdout,
         });

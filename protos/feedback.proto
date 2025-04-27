@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package feedback;
+
+service FeedbackCollection {
+    rpc SubmitFeedback(stream UserFeedback) returns (FeedbackSummary); //allows user to submit feedback - client streaming RCP
+}
+
+message UserFeedback {
+    string name = 1; //customer name
+    string review = 2; //the written feedback from the customer
+    int32 rating = 3; //rating from 1-5
+}
+
+message FeedbackSummary {
+    string message = 1; //confirmation message returned to user
+}

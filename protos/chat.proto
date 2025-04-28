@@ -3,21 +3,13 @@ syntax = "proto3";
 package chat;
 
 service ChatBot {
-    rpc chatService(stream UserMessage) returns(stream StaffMessage); //messages between user and staff - bidirectional streaming RPC
+    rpc chatService(stream ChatMessage) returns(stream ChatMessage); //messages between user and staff - bidirectional streaming RPC
 }
 
-//user sending message
-message UserMessage {
-    string cust_id = 1; //unique ID number for customer
-    string user_message = 2; //text of message
-    string message_time = 3;
-    string user = 4; //user's name
-}
-
-//staff sending message
-message StaffMessage {
-    string staff_id = 1; //unique ID number for staff member handling messages
-    string staff_message = 2; //text of message
-    string message_time = 3;
-    string staff = 4; //staff member's name
+//sending messages
+message ChatMessage {
+    string id = 1,
+    string name = 2,
+    string time = 3,
+    string message = 4,
 }

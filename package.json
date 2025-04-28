@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "start": "app.js"
+    "start": "app.js",
+    "feedback": "node services/feedbackService.js",
+    "chat": "node services/chatService.js"
   },
   "repository": {
     "type": "git",

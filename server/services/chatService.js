@@ -5,37 +5,48 @@ var protoLoader = require("@grpc/proto-loader")
 var CHAT_PROTO_PATH = __dirname + "/../../protos/chat.proto"
 var chatPackageDefinition = protoLoader.loadSync(
     CHAT_PROTO_PATH
-)
+);
+var chat_proto = grpc.loadPackageDefinition(chatPackageDefinition).chat;
 
-var chat_proto = grpc.loadPackageDefinition(chatPackageDefinition).chat
-
-//implementing chat function
 var clients = {
 
-}
+};
 
-var messages = {
+//sending messages
+function sendMessage(call) {
+    call.on('data', function(chat_message) {
 
-}
-
-function chatService(call) {
-    call.on('data', function(chat) {
-
-        if(!(chat.name in clients)) {
-            clients[chat.name] = {
-                name: chat.name,
+        if(!(chat_message.name in clients)) {
+            clients[chat_message.name] = {
+                name: chat_message.name,
                 call: call
             }
         }
 
-        if(!(chat.name in messages)) {
-            messages[chat.name] = 0
+        for(var client in clients) {
+            clients[client].call.write (
+                {
+                    name: chat_message.name,
+                    message: chat_message.message
+                }
+            )
         }
-    })
+    });
+
+    call.on('end', function() {
+        call.end();
+    });
+
+    call.on('error', function(e) {
+        console.log(e)
+    });
 }
 
-var server = new grpc.Server()
-server.addService(chat_proto.ChatBot.service, {chatService:chatService})
-server.bindAsync("0.0.0.0:40000", grpc.ServerCredentials.createInsecure(), function() {
-    console.log(`Server running at http://0.0.0.0:40000`);
+var server = new grpc.Server();
+server.addService(chat_proto.ChatService.service, {
+    sendMessage:sendMessage
 });
+
+server.bindAsync("0.0.0.0:40000", grpc.ServerCredentials.createInsecure(), function() {
+    console.log('Server running on http://0.0.0.0:40000')
+})

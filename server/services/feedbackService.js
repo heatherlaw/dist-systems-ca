@@ -67,8 +67,9 @@ function SubmitFeedback(call, callback) {
     })
 }
 
+//Creating server
 var server = new grpc.Server()
 server.addService(feedback_proto.FeedbackCollection.service, {SubmitFeedback:SubmitFeedback})
 server.bindAsync("0.0.0.0:40000", grpc.ServerCredentials.createInsecure(), function() {
-    console.log(`Server running at http://0.0.0.0:40000`);
+    console.log(`Feedback server running at http://0.0.0.0:40000`);
 });

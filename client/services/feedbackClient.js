@@ -4,7 +4,7 @@ var grpc = require("@grpc/grpc-js");
 var protoLoader = require("@grpc/proto-loader");
 
 //loading and defining feedback proto
-var FEEDBACK_PROTO_PATH = (__dirname + "/../protos/feedback.proto");
+var FEEDBACK_PROTO_PATH = (__dirname + "/../../protos/feedback.proto");
 var feedbackPackageDefinition = protoLoader.loadSync(
     FEEDBACK_PROTO_PATH
 );

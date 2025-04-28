@@ -48,5 +48,5 @@ server.addService(chat_proto.ChatBot.service, {
 });
 
 server.bindAsync("0.0.0.0:40000", grpc.ServerCredentials.createInsecure(), function() {
-    console.log('Server running on http://0.0.0.0:40000')
+    console.log('Server running on 0.0.0.0:40000')
 })

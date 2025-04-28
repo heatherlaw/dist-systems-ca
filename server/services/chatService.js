@@ -13,7 +13,7 @@ var clients = {
 };
 
 //sending messages
-function sendMessage(call) {
+function chatService(call) {
     call.on('data', function(chat_message) {
 
         if(!(chat_message.name in clients)) {
@@ -43,8 +43,8 @@ function sendMessage(call) {
 }
 
 var server = new grpc.Server();
-server.addService(chat_proto.ChatService.service, {
-    sendMessage:sendMessage
+server.addService(chat_proto.ChatBot.service, {
+    chatService:chatService
 });
 
 server.bindAsync("0.0.0.0:40000", grpc.ServerCredentials.createInsecure(), function() {

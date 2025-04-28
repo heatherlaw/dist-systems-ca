@@ -41,58 +41,62 @@ function chatService(call) {
     })
 }
 
-//implementing feedback function
-var reviews = {
-
-}
-
-var ratings = {
-
-}
-
-var clients = {
-
-}
-
+//implementing feedback function - Client streaming RPC
 var averageRating = 0
 var message = null
 
-function SubmitFeedback(call) {
+function SubmitFeedback(call, callback) {
+    let totalRating = 0;
+    let count = 0;
+    let name = null;
+    let errorOccurred = false; //for managing errors during validation checks
+
     call.on('data', function(feedback) {
+        console.log("Received feedback: ", feedback);
 
-            if(!(feedback.name in clients)) {
-                clients[feedback.name] = {
-                    name: feedback.name, 
-                    call: call    
-                } 
-            }
+        //Validations
 
-            if(!(feedback.name in reviews)) {
-                reviews[feedback.name] = 0
-            }
-
-        reviews[feedback.name] += 1
-
-        if(!(feedback.feedback == averageRating) || !message) {
-            averageRating = (ratings+feedback)/reviews
-            message = "Thank you, " + feedback.name + " for your feedback! The average rating of your reviews is " + feedback.averageRating
+        //if name left blank
+        if(!feedback.name || feedback.name.trim() === "") {
+            errorOccurred = true;
+            callback({
+                code: grpc.status.INVALID_ARGUMENT,
+                message: "Name must not be empty. Please enter your name."
+            });
+            call.end();
+            return;
         }
 
-        for(var client in clients) {
-            clients[client].call.write(
-                {
-                    message: feedback.message
-                }
-            )
+        //if invalid rating entered
+        if(feedback.rating < 1 || feedback.rating > 5 || isNaN(feedback.rating)) {
+            errorOccurred = true;
+            callback({
+                code: grpc.status.INVALID_ARGUMENT,
+                message: "Invalid rating entered. Please enter a rating between 1 and 5."
+            });
+            call.end();
+            return;
         }
-    })
+
+        if(!name) {
+            name = feedback.name;
+        }
+
+        totalRating += feedback.rating;
+        count +=1;
+    });
 
     call.on('end', function() {
-        call.end()
+        if (errorOccurred) return; //if the function ended early due to an error rather than ending due to completion
+
+        const averageRating = (count === 0 ) ? 0: (totalRating/count).toFixed(2);
+        const message = `Thank you, ${name}! You have submitted ${count} feedback forms. Average rating: ${averageRating}`;
+
+        callback(null, { message: message });
     })
 
     call.on("error", function (e) {
-        console.log(e)
+        console.error("An error occurred: ", e);
     })
 }
 
@@ -100,5 +104,5 @@ var server = new grpc.Server()
 server.addService(chat_proto.ChatBot.service, {chatService:chatService})
 server.addService(feedback_proto.FeedbackCollection.service, {SubmitFeedback:SubmitFeedback})
 server.bindAsync("0.0.0.0:40000", grpc.ServerCredentials.createInsecure(), function() {
-    server.start()
-})
+    console.log(`Server running at http://0.0.0.0:40000`);
+});

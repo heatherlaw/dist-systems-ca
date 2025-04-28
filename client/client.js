@@ -17,51 +17,86 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-//get the user's name
-rl.question('What is your name? ', (user) => {
-    //get the user's rating
-    console.log('How would you rate your experience today? Please enter a rating from 1-5 or enter q to quit.');
+//variables
+let call;
+let name;
 
-    const call = client.SubmitFeedback();
-
-    call.on('data', function(resp) {
-    console.log(resp.message);
+//starting the feedback session and getting user name
+function startFeedback() {
+    call = client.SubmitFeedback((err, response) => {
+        if (err) {
+            console.error("An error occurred: ", err.message);
+        }
+        else {
+            console.log("Feedback session ended: ", response.message);
+        }
+        rl.close();
     });
 
-    //if function is ended
-    call.on('end', function() {
+    call.on("error", (e) => {
+        console.error("Stream error: ", e.message);
+        rl.close();
+    });
+
+    call.on("data", (resp) => {
+        console.log(resp.message);
+    });
+
+    call.on("end", () => {
         console.log("Feedback session ended. Thank you for visiting!");
+        rl.close();
     });
 
-    //in case of error
-    call.on("error", function(e) {
-        console.log("An error occurred", e);
+    namePrompt();
+};
+
+//prompting the user for their name
+function namePrompt() {
+    rl.question('What is your name? ', (userInput) => {
+        //if name isn't valid
+        if(!userInput || userInput.trim() ==="") {
+            console.log("This name is not valid. Please try again. ");
+            return namePrompt(); //ask for the name again
+        }
+
+        name = userInput.trim();
+        console.log('How would you rate your experience today? Please enter a rating from 1-5 or enter q to quit.');
+        rl.prompt();
     });
+}
 
-    rl.on('line', (input) => {
-        //if the user opts to quit
-        if(input === "q" || input ==="Q") {
-            call.end();
-            rl.close();
-            return;
-        }
-    
-        const rating = parseInt(input);
+//Rating and review
+rl.on('line', (input) => {
+    if(!call) {
+        startFeedback();
+        return;
+    }
 
-        //if rating is invalid
-        if (isNaN(rating) || rating < 0 || rating > 5) {
-            console.log("This is not a valid rating, please enter a number from 1-5 or enter q to quit.");
-            return;
-        }
+    //if the user chooses to quit
+    if(input.toLowerCase() === "q") { //ensures they can enter upper or lowercase Q to quit
+        call.end();
+        return;
+    }
 
-        //written review
-        rl.question('Any additional comments? ', (review) => {
-            call.write({
-                name: user,
-                review: review,
-                rating: rating,
-            });
-            console.log('You can enter further ratings and comments or enter q to quit.');
+    const rating = parseInt(input, 10);
+
+    //validating rating - must be number between 1 and 5
+    if(isNaN(rating) || rating < 1 || rating > 5) {
+        console.log("This is not a valid rating, please enter a number from 1-5 or enter q to quit.");
+        rl.prompt();
+        return;
+    }
+
+    rl.question('Any additional comments? ', (review) => {
+        call.write({
+            name: name,
+            review: review,
+            rating: rating,
         });
+        console.log('Feedback sent! Thank you, your feedback is important to us. Enter Q to quit.');
+        rl.prompt();
     });
 });
+
+//starting the feedback session
+startFeedback();
